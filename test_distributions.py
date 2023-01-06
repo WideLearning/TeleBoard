@@ -25,6 +25,11 @@ def test_var_for(population, q_size, s_size=10**6):
 
 
 class TestDistributions(unittest.TestCase):
+    def test_small(self):
+        qd_1_1 = QuantileDistribution(np.zeros(1), 1)
+        qd_1_2 = QuantileDistribution(np.zeros(1), 2)
+        qd_2_1 = QuantileDistribution(np.zeros(2), 1)
+
     def test_mean(self):
         self.assertGreater(test_mean_for(np.random.standard_cauchy(1000), 1000), 0.1)
         self.assertLess(test_mean_for(np.random.standard_normal(1000), 1000), 0.1)

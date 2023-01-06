@@ -6,6 +6,7 @@ import seaborn as sns
 class QuantileDistribution:
     def __init__(self, points, k=100):
         assert points.ndim == 1
+        assert points.size > 0 and k > 0
         points = points.astype(np.float32)
         self.k = k
         self.q = np.quantile(points, np.linspace(0, 1, k + 1), method="linear")
