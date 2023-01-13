@@ -104,5 +104,7 @@ class ConsoleTracker(TrackerBase):
         self.regex = regex
 
     def scalar(self, name, value):
+        self.series[name].append(value)
         if re.fullmatch(self.regex, name):
-            print(f"{name} = {float(value):.4f}")
+            s = self.series[name]
+            print(f"{name} = {float(value):.4f}, mean = {float(sum(s) / len(s)):.4f}")
