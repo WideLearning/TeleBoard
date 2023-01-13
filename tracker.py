@@ -1,3 +1,4 @@
+import re
 from collections import defaultdict
 
 import neptune.new as neptune
@@ -24,6 +25,7 @@ class TrackerBase:
     def _activation_hook(self, name):
         def hook(_model, _input, output):
             self.outputs[name] = output.detach()
+
         return hook
 
     def set_hooks(self, model):
@@ -35,8 +37,10 @@ class TrackerBase:
         eps = 1e-8
         previous = self.last.get(name, value)
         self.tensor(f"{name}:log", (value.abs() + eps).log())
-        self.scalar(f"{name}:cosine_sim",
-                    F.cosine_similarity(value.flatten(), previous.flatten(), dim=0).item())
+        self.scalar(
+            f"{name}:cosine_sim",
+            F.cosine_similarity(value.flatten(), previous.flatten(), dim=0).item(),
+        )
         if with_xy:
             x, y = tensor_hash(value)
             self.scalar(f"{name}:x", x)
@@ -50,16 +54,20 @@ class TrackerBase:
 
     def model(self, model):
         for i, (name, param) in enumerate(model.named_parameters()):
-            self.statistics(f"{i}_{name}:dweight", param -
-                            self.last.get(f"{i}_{name}:weight", param))
+            self.statistics(
+                f"{i}_{name}:dweight",
+                param - self.last.get(f"{i}_{name}:weight", param),
+            )
             self.statistics(f"{i}_{name}:weight", param, with_xy=True)
             self.statistics(f"{i}_{name}:gradient", param.grad)
 
         for i, (name, _module) in enumerate(model.named_modules()):
-            self.tensor(f"{i}_{name}:output",
-                        self.outputs.get(name, torch.zeros(1)))
+            self.tensor(f"{i}_{name}:output", self.outputs.get(name, torch.zeros(1)))
 
     def scalar(self, name, value):
+        pass
+
+    def dump(self):
         pass
 
 
@@ -82,6 +90,19 @@ class FileTracker(TrackerBase):
         self.series[name].append(value)
 
     def dump(self):
-        compressed = {name: np.array(value, dtype=np.float32)
-                      for name, value in self.series.items()}
+        compressed = {
+            name: np.array(value, dtype=np.float32)
+            for name, value in self.series.items()
+        }
         torch.save(compressed, self.filename)
+
+
+class ConsoleTracker(TrackerBase):
+    def __init__(self, k, regex):
+        super().__init__(k)
+        self.series = defaultdict(list)
+        self.regex = regex
+
+    def scalar(self, name, value):
+        if re.fullmatch(self.regex, name):
+            print(f"{name} = {float(value):.4f}")
