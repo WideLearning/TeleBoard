@@ -6,7 +6,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from distributions import QuantileDistribution
+from .distributions import QuantileDistribution
 
 
 def tensor_hash(tensor):

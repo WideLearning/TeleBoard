@@ -8,7 +8,7 @@ from matplotlib.gridspec import GridSpec
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QRadioButton, QSpinBox,
                              QVBoxLayout, QWidget)
 
-from loader import FileLoader
+from .loader import FileLoader
 
 # loader = NeptuneLoader(project="WideLearning/Titanic",
 #                        api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLC" +
