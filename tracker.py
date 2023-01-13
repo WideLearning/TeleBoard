@@ -65,6 +65,9 @@ class TrackerBase:
             self.tensor(f"{i}_{name}:output", self.outputs.get(name, torch.zeros(1)))
 
     def scalar(self, name, value):
+        self._scalar(name, value.detach().cpu().numpy())
+
+    def _scalar(self, name, value):
         pass
 
     def dump(self):
@@ -76,7 +79,7 @@ class NeptuneTracker(TrackerBase):
         super().__init__(k)
         self.run = neptune.init_run(project, api_token)
 
-    def scalar(self, name, value):
+    def _scalar(self, name, value):
         self.run[name].log(value)
 
 
@@ -86,7 +89,7 @@ class FileTracker(TrackerBase):
         self.series = defaultdict(list)
         self.filename = filename
 
-    def scalar(self, name, value):
+    def _scalar(self, name, value):
         self.series[name].append(value)
 
     def dump(self):
@@ -103,7 +106,7 @@ class ConsoleTracker(TrackerBase):
         self.series = defaultdict(list)
         self.regex = regex
 
-    def scalar(self, name, value):
+    def _scalar(self, name, value):
         self.series[name].append(value)
         if re.fullmatch(self.regex, name):
             s = self.series[name]
