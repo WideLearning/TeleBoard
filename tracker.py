@@ -22,17 +22,20 @@ class TrackerBase:
         self.outputs = {}
         self.last = {}
 
-    def _activation_hook(self, name):
+    def _activatioh_hook(self, name):
         def hook(_model, _input, output):
+            if isinstance(output, tuple):
+                output = output[0]
             self.outputs[name] = output.detach()
 
         return hook
 
     def set_hooks(self, model):
         for name, module in model.named_modules():
-            module.register_forward_hook(self._activation_hook(name))
+            module.register_forward_hook(self._activatioh_hook(name))
 
     def statistics(self, name, param, with_xy=False):
+        assert isinstance(param, torch.Tensor)
         value = param.detach().clone()
         eps = 1e-8
         previous = self.last.get(name, value)
@@ -48,6 +51,7 @@ class TrackerBase:
         self.last[name] = value.detach()
 
     def tensor(self, name, value):
+        assert isinstance(value, torch.Tensor)
         qd = QuantileDistribution(value.detach().cpu().numpy().ravel(), self.k)
         for i in range(self.k + 1):
             self.scalar(f"{name}%{i/self.k:.3f}", qd.q[i])
@@ -65,7 +69,9 @@ class TrackerBase:
             self.tensor(f"{i}_{name}:output", self.outputs.get(name, torch.zeros(1)))
 
     def scalar(self, name, value):
-        self._scalar(name, value.detach().cpu().numpy())
+        if isinstance(value, torch.Tensor):
+            value = value.detach().cpu().numpy()
+        self._scalar(name, value)
 
     def _scalar(self, name, value):
         pass
