@@ -63,7 +63,7 @@ class TrackerBase:
                 param - self.last.get(f"{i}_{name}:weight", param),
             )
             self.statistics(f"{i}_{name}:weight", param, with_xy=True)
-            self.statistics(f"{i}_{name}:gradient", param.grad)
+            self.statistics(f"{i}_{name}:gradient", param.grad if param.grad is not None else torch.zeros_like(param))
 
         for i, (name, _module) in enumerate(model.named_modules()):
             self.tensor(f"{i}_{name}:output", self.outputs.get(name, torch.zeros(1)))
