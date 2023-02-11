@@ -53,13 +53,12 @@ class NeptuneLoader:
     def __init__(self, project, api_token, run):
         super().__init__()
         self.data = neptune.init_run(
-            project,
-            api_token,
-            run, mode="read-only"
+            project, api_token, run, mode="read-only"
         ).get_structure()
 
-        self.series = sorted([name for name, series in self.data.items()
-                              if not isinstance(series, dict)])
+        self.series = sorted(
+            [name for name, series in self.data.items() if not isinstance(series, dict)]
+        )
 
     def _get(self, name):
         path = name.split("/")
@@ -74,6 +73,6 @@ class FileLoader(LoaderBase):
         self.data = torch.load(filename)
         assert isinstance(self.data, dict)
         self.series = self.data.keys()
-    
+
     def _get(self, name):
         return self.data.get(name, np.array([]))

@@ -1,14 +1,19 @@
 import sys
 
 import numpy as np
-from matplotlib.backends.backend_qt5agg import (FigureCanvas,
-                                                NavigationToolbar2QT)
+from matplotlib.backends.backend_qt5agg import FigureCanvas, NavigationToolbar2QT
 from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
-from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QRadioButton, QSpinBox,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (
+    QApplication,
+    QHBoxLayout,
+    QRadioButton,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
+)
 
-from .loader import FileLoader
+from teleboard.loader import FileLoader
 
 # loader = NeptuneLoader(project="WideLearning/Titanic",
 #                        api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLC" +
@@ -120,7 +125,7 @@ class MainWindow(QWidget):
         ax_coslayer.set_title("Layer cosine similarities")
         ax_coslayer.set_ylim(-1, 1)
         ax_coslayer.axvline(x=epoch, color="red", lw=0.5)
-        for i in (list(range(0, layer)) + list(range(layer + 1, n_params)) + [layer]):
+        for i in list(range(0, layer)) + list(range(layer + 1, n_params)) + [layer]:
             c = loader.regex(f"{i}_.*:{self.type_to_plot()}:cosine_sim")
             if c is None:
                 break
@@ -144,8 +149,12 @@ class MainWindow(QWidget):
                     ax.plot(x, y, "o-", lw=0.1, ms=1, color="blue")
                     ax.plot([x[epoch]], [y[epoch]], "o", ms=4, color="blue")
 
-        plot_path(self.canvas.figure.add_subplot(gs[1:, 0:3]),
-                  "Scaled layer paths", f=scale, r=5)
+        plot_path(
+            self.canvas.figure.add_subplot(gs[1:, 0:3]),
+            "Scaled layer paths",
+            f=scale,
+            r=5,
+        )
         # plot_path(self.canvas.figure.add_subplot(gs[1:, 3:6]),
         #           "Squashed layer paths", f=squash, r=25)
 

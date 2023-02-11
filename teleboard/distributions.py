@@ -16,6 +16,7 @@ class QuantileDistribution:
     def integrate(self, f):
         def segment(lef, rig):
             return quad(f, lef, rig)[0] / (self.k * max(rig - lef, 1e-18))
+
         return sum(segment(lef, rig) for lef, rig in zip(self.q, self.q[1:]))
 
     def sample(self, size):
